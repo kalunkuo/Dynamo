@@ -178,6 +178,9 @@ namespace Dynamo.Models
                     case nameof(CreateAndConnectNodeCommand):
                         command = CreateAndConnectNodeCommand.DeserializeCore(element);
                         break;
+                    case nameof(AutoLayoutCommand):
+                        command = AutoLayoutCommand.DeserializeCore(element);
+                        break;
                 }
 
                 if (null != command)
@@ -2674,7 +2677,44 @@ namespace Dynamo.Models
 
             #endregion
         }
-    }
+
+        /// <summary>
+        /// A command to execute auto-layout on the current workspace.
+        /// </summary>
+        [DataContract]
+        public class AutoLayoutCommand : RecordableCommand
+        {
+            #region Public Class Methods
+
+            /// <summary>
+            /// Creates a new AutoLayoutCommand
+            /// </summary>
+            public AutoLayoutCommand()
+            {
+            }
+
+            internal static AutoLayoutCommand DeserializeCore(XmlElement element)
+            {
+                return new AutoLayoutCommand();
+            }
+
+            #endregion
+
+            #region Protected Overridable Methods
+
+            protected override void ExecuteCore(DynamoModel dynamoModel)
+            {
+                dynamoModel.AutoLayoutImpl(this);
+            }
+
+            protected override void SerializeCore(XmlElement element)
+            {
+            }
+
+            #endregion
+        }
+    
+}
 
     // public class XxxYyyCommand : RecordableCommand
     // {

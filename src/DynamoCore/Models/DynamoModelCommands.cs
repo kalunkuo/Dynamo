@@ -726,5 +726,14 @@ namespace Dynamo.Models
             workspaceToSet.ApplyPreset (state);
         }
 
+        private void AutoLayoutImpl(AutoLayoutCommand command)
+        {
+            var workspace = CurrentWorkspace as WorkspaceModel;
+            if (workspace == null) return;
+
+            DynamoSelection.Instance.ClearSelection();
+            workspace.DoGraphAutoLayout();
+        }
+
     }
 }
