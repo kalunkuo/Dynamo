@@ -456,6 +456,9 @@ namespace Dynamo.Models
             ShutDownCore(shutdownHost);
             PostShutdownCore(shutdownHost);
 
+            // Track ML Terms of Use status before shutting down the analytics service.
+            // This captures the final user preference state to measure opt-out rates.
+            Analytics.TrackPreference("MLTermsOfUse", "", PreferenceSettings.Instance?.IsMLAutocompleteTOUApproved == true ? 1 : 0);
             AnalyticsService.ShutDown();
 
             LuceneSearch.LuceneUtilityNodeSearch = null;
