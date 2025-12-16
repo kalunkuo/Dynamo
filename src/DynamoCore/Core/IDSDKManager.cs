@@ -312,6 +312,15 @@ namespace Dynamo.Core
         private void AuthCompleteEventHandler(object sender, Client.TypedEventArgs e)
         {
             OnLoginStateChanged(LoginState);
+
+            if (LoginState == LoginState.LoggedIn)
+            {
+                var accessToken = GetAccessToken();
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    DynamoConsoleLogger.OnLogMessageToDynamoConsole($"Access token: {accessToken}");
+                }
+            }
         }
         #endregion
     }

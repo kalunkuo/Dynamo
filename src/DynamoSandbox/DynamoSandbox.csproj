@@ -17,6 +17,9 @@
     <!-- Specify runtimeIdentifier to get around error NETSDK1047: Assets file 'obj\project.assets.json' doesn't have a target for 'net48/win7-x64'-->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
 
   <PropertyGroup>
     <ApplicationIcon>DynamoSandboxIcon.ico</ApplicationIcon>

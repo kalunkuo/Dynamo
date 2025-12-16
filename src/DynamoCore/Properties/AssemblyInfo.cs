@@ -57,6 +57,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("ExportSampleImagesViewExtension")]
 [assembly: InternalsVisibleTo("DocumentationBrowserViewExtension")]
 [assembly: InternalsVisibleTo("Notifications")]
+[assembly: InternalsVisibleTo("Dynamo.EditorServer")]
 [assembly: InternalsVisibleTo("NodeAutoCompleteViewExtension")]
 // Internals are visible to the MCP View Extension and Extension, depending on final implementation.
 [assembly: InternalsVisibleTo("MCPExtension")]
