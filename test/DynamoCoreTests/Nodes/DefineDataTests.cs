@@ -10,6 +10,9 @@ namespace Dynamo.Tests.Nodes
     {
         protected override void GetLibrariesToPreload(List<string> libraries)
         {
+            libraries.Add("ProtoGeometry.dll");
+            libraries.Add("VMDataBridge.dll");
+            libraries.Add("DesignScriptBuiltin.dll");
             libraries.Add("DSCoreNodes.dll");
             base.GetLibrariesToPreload(libraries);
         }
@@ -36,7 +39,13 @@ namespace Dynamo.Tests.Nodes
         [Category("UnitTests")]
         public void ValueTypeIdSafeWhenNoSelection()
         {
+            // The DefineData() constructor sets SelectedIndex = 0, so by default there *is*
+            // a selection and ValueTypeId returns the selected item's TypeId (e.g. "Bool"),
+            // which differs from SelectedString (e.g. "Boolean"). Force the no-selection
+            // branch so we actually exercise the fallback to SelectedString.
             var node = new DefineData();
+            node.SelectedIndex = -1;
+
             Assert.DoesNotThrow(() => { var _ = node.ValueTypeId; });
             Assert.AreEqual(node.SelectedString, node.ValueTypeId);
         }

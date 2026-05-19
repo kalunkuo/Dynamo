@@ -452,21 +452,23 @@ namespace ProtoFFI
 
         public override StackValue Marshal(object obj, ProtoCore.Runtime.Context context, Interpreter dsi, ProtoCore.Type type)
         {
+            // If obj is already a DesignScript Dictionary, marshal as opaque Pointer to avoid
+            // re-entering DictionaryMarshaler via MarshalToStackValue and recursing infinitely.
+            if (obj is Dictionary)
+            {
+                return primitiveMarshaler.Marshal(obj, context, dsi, PrimitiveMarshaler.CreateType(ProtoCore.PrimitiveType.Pointer));
+            }
+
             List<string> keys = null;
             List<object> values = null;
-            
+
             if (obj is IDictionary)
             {
                 var dict = (IDictionary) obj;
                 keys = dict.Keys.Cast<string>().ToList();
                 values = dict.Values.Cast<object>().ToList();
             }
-            else if (obj is Dictionary)
-            {
-                var dict = (Dictionary) obj;
-                keys = dict.Keys.ToList();
-                values = dict.Values.ToList();
-            }
+
             // TODO(pboyer) what if keys are not strings?
             var dsdict = Dictionary.ByKeysValues(keys, values);
             return MarshalToStackValue(dsdict, context, dsi);
