@@ -125,7 +125,7 @@ namespace ProtoFFI
 
         public override object UnMarshal(StackValue dsObject, ProtoCore.Runtime.Context context, Interpreter dsi, Type type)
         {
-            if (dsObject.IntegerValue > MaxValue || dsObject.IntegerValue< MinValue)
+            if (dsObject.IntegerValue > MaxValue || dsObject.IntegerValue < MinValue)
             {
                 string message = String.Format(Resources.kFFIInvalidCast, dsObject.IntegerValue, type.Name, MinValue, MaxValue);
                 dsi.LogWarning(ProtoCore.Runtime.WarningID.TypeMismatch, message);
@@ -232,7 +232,7 @@ namespace ProtoFFI
         {
             var collection = obj as IEnumerable;
             Validity.Assert(null != collection, "Expected IEnumerable object for marshaling as collection");
-            if (null == collection) 
+            if (null == collection)
                 return StackValue.Null;
 
             if (collection is ICollection)
@@ -302,7 +302,7 @@ namespace ProtoFFI
                 return CreateType(ProtoCore.PrimitiveType.Null);
 
             Type type = obj.GetType();
-            if(type == typeof(string))
+            if (type == typeof(string))
                 return StringMarshaler.kType;
             ProtoCore.Type dsType;
             if (CLRModuleType.TryGetImportedDSType(type, out dsType))
@@ -314,7 +314,7 @@ namespace ProtoFFI
                 return dsType;
             }
 
-            return CreateType(ProtoCore.PrimitiveType.Var); 
+            return CreateType(ProtoCore.PrimitiveType.Var);
         }
 
         protected StackValue MarshalToStackValue(object obj, ProtoCore.Runtime.Context context, Interpreter dsi)
@@ -452,23 +452,21 @@ namespace ProtoFFI
 
         public override StackValue Marshal(object obj, ProtoCore.Runtime.Context context, Interpreter dsi, ProtoCore.Type type)
         {
-            // If obj is already a DesignScript Dictionary, marshal as opaque Pointer to avoid
-            // re-entering DictionaryMarshaler via MarshalToStackValue and recursing infinitely.
-            if (obj is Dictionary)
-            {
-                return primitiveMarshaler.Marshal(obj, context, dsi, PrimitiveMarshaler.CreateType(ProtoCore.PrimitiveType.Pointer));
-            }
-
             List<string> keys = null;
             List<object> values = null;
 
             if (obj is IDictionary)
             {
-                var dict = (IDictionary) obj;
+                var dict = (IDictionary)obj;
                 keys = dict.Keys.Cast<string>().ToList();
                 values = dict.Values.Cast<object>().ToList();
             }
-
+            else if (obj is Dictionary)
+            {
+                var dict = (Dictionary)obj;
+                keys = dict.Keys.ToList();
+                values = dict.Values.ToList();
+            }
             // TODO(pboyer) what if keys are not strings?
             var dsdict = Dictionary.ByKeysValues(keys, values);
             return MarshalToStackValue(dsdict, context, dsi);
@@ -543,7 +541,8 @@ namespace ProtoFFI
             return targetDict;
         }
 
-        private object ToGenericIDictionary(StackValue dsObject, ProtoCore.Runtime.Context context, Interpreter dsi, System.Type expectedType) {
+        private object ToGenericIDictionary(StackValue dsObject, ProtoCore.Runtime.Context context, Interpreter dsi, System.Type expectedType)
+        {
             var keyType = expectedType.GetGenericArguments().First();
             var valueType = expectedType.GetGenericArguments().Last();
             var instanceType = expectedType.GetGenericTypeDefinition().MakeGenericType(keyType, valueType);
@@ -567,7 +566,7 @@ namespace ProtoFFI
                 {
                     dsi.LogWarning(WarningID.TypeMismatch, e.Message);
                 }
-                
+
             }
 
             return targetDict;
@@ -608,7 +607,7 @@ namespace ProtoFFI
     /// <summary>
     /// Marshales string as array of chars
     /// </summary>
-    class StringMarshaler : PrimitiveMarshaler 
+    class StringMarshaler : PrimitiveMarshaler
     {
         public static readonly ProtoCore.Type kType = CreateType(ProtoCore.PrimitiveType.String);
 
@@ -767,7 +766,7 @@ namespace ProtoFFI
             if (DSObjectMap.TryGetValue(dsObject, out clrObject))
                 return clrObject;
 
-            
+
             return CreateCLRObject(dsObject, expectedCLRType);
         }
 
@@ -854,7 +853,7 @@ namespace ProtoFFI
             if (typeof(string) == objType)
             {
                 marshalAsArray = false;
-            }  
+            }
             //1. If expectedDSType is fixed rank collection, objType must be a collection of same rank
             else if (dsType.rank > 0 && typeof(IEnumerable).IsAssignableFrom(objType))
             {
@@ -871,7 +870,7 @@ namespace ProtoFFI
             //4. Else get primitive marshaler for given objType
             if (marshalAsArray)
                 marshaler = new ArrayMarshaler(this, dsType);
-            else if(dsType.UID != (int)ProtoCore.PrimitiveType.Pointer) //Not exported as pointer type
+            else if (dsType.UID != (int)ProtoCore.PrimitiveType.Pointer) //Not exported as pointer type
                 mPrimitiveMarshalers.TryGetValue(objType, out marshaler);
 
             return marshaler;
@@ -1139,7 +1138,7 @@ namespace ProtoFFI
 
                 var classTable = runtimeCore.DSExecutable.classTable;
                 mCachedType = classTable.IndexOf(GetTypeName(objType));
-                
+
                 //Recursively get the base class type if available.
                 while (mCachedType == -1 && objType != null)
                 {
@@ -1519,7 +1518,7 @@ namespace ProtoFFI
     /// for proper <see cref="IEqualityComparer{T}"/> implementation.
     /// </para>
     /// </summary>
-    public class ReferenceEqualityComparer: IEqualityComparer<object>
+    public class ReferenceEqualityComparer : IEqualityComparer<object>
     {
         bool IEqualityComparer<object>.Equals(object x, object y)
         {
